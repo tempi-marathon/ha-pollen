@@ -52,6 +52,8 @@ Attribute contract (provider-neutral for a future US source):
 
 Data provided by [Open-Meteo.com](https://open-meteo.com/) (CC BY 4.0). Generated using Copernicus Atmosphere Monitoring Service information.
 
+The HACS / Home Assistant brand icon (`custom_components/pollen/brand/icon.png`) is a static export of the **pollen-grass** icon from [Meteocons](https://meteocons.com/) by [Bas Milius](https://github.com/basmilius/meteocons) (MIT).
+
 ## License
 
 MIT — see [LICENSE](LICENSE).
