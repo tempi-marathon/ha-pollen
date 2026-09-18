@@ -1,0 +1,12 @@
+{
+  "domain": "pollen",
+  "name": "Pollen",
+  "codeowners": ["@tempi-marathon"],
+  "config_flow": true,
+  "documentation": "https://github.com/tempi-marathon/ha-pollen",
+  "integration_type": "service",
+  "iot_class": "cloud_polling",
+  "issue_tracker": "https://github.com/tempi-marathon/ha-pollen/issues",
+  "requirements": [],
+  "version": "0.1.0"
+}
