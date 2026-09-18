@@ -4,7 +4,11 @@ from __future__ import annotations
 
 from typing import Any
 
-from homeassistant.components.sensor import SensorEntity, SensorStateClass
+from homeassistant.components.sensor import (
+    SensorDeviceClass,
+    SensorEntity,
+    SensorStateClass,
+)
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.device_registry import DeviceEntryType, DeviceInfo
@@ -28,6 +32,7 @@ from .const import (
     UNIT_OF_MEASUREMENT_GRAINS,
 )
 from .coordinator import PollenCoordinator
+from .levels import LEVEL_LABELS
 from .models import DailyPeak, ForecastPoint, SpeciesReading
 
 PARALLEL_UPDATES = 0
@@ -51,7 +56,7 @@ def _device_info(entry: ConfigEntry) -> DeviceInfo:
         identifiers={(DOMAIN, entry.entry_id)},
         name=entry.data.get(CONF_NAME) or entry.title or "Pollen",
         manufacturer="Open-Meteo",
-        model="CAMS European pollen",
+        model="Pollen",
         entry_type=DeviceEntryType.SERVICE,
         configuration_url="https://open-meteo.com/en/docs/air-quality-api",
     )
@@ -70,7 +75,6 @@ class PollenBaseSensor(CoordinatorEntity[PollenCoordinator], SensorEntity):
 
     _attr_has_entity_name = True
     _attr_attribution = ATTRIBUTION
-    _attr_state_class = SensorStateClass.MEASUREMENT
     _attr_icon = "mdi:flower-pollen"
 
     def __init__(
@@ -87,6 +91,7 @@ class PollenSpeciesSensor(PollenBaseSensor):
     """Current grains/m³ for one pollen species."""
 
     _attr_native_unit_of_measurement = UNIT_OF_MEASUREMENT_GRAINS
+    _attr_state_class = SensorStateClass.MEASUREMENT
 
     def __init__(
         self,
@@ -132,6 +137,10 @@ class PollenSpeciesSensor(PollenBaseSensor):
 
 class PollenOverallSensor(PollenBaseSensor):
     """Overall pollen level (none / low / high) for the location."""
+
+    _attr_device_class = SensorDeviceClass.ENUM
+    _attr_options = list(LEVEL_LABELS.values())
+    _attr_entity_registry_enabled_default = True
 
     def __init__(
         self,
