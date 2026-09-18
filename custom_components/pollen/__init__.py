@@ -2,13 +2,16 @@
 
 from __future__ import annotations
 
+import logging
 from typing import TYPE_CHECKING
 
-from .const import DOMAIN
+from .const import DOMAIN, OVERALL_SPECIES
 
 if TYPE_CHECKING:
     from homeassistant.config_entries import ConfigEntry
     from homeassistant.core import HomeAssistant
+
+_LOGGER = logging.getLogger(__name__)
 
 PLATFORMS = ["sensor"]
 
@@ -30,6 +33,28 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     await hass.config_entries.async_forward_entry_setups(
         entry, [Platform.SENSOR]
     )
+    return True
+
+
+async def async_migrate_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
+    """Migrate config entry to the latest version."""
+    if entry.version < 2:
+        from homeassistant.helpers import entity_registry as er
+
+        registry = er.async_get(hass)
+        unique_id = f"{entry.entry_id}_{OVERALL_SPECIES}"
+        entity_id = registry.async_get_entity_id("sensor", DOMAIN, unique_id)
+        if entity_id is not None:
+            entity = registry.async_get(entity_id)
+            if entity is not None and entity.disabled_by is not None:
+                registry.async_update_entity(entity_id, disabled_by=None)
+                _LOGGER.info(
+                    "Re-enabled Overall pollen sensor %s during v2 migration",
+                    entity_id,
+                )
+
+        hass.config_entries.async_update_entry(entry, version=2)
+
     return True
 
 
