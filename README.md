@@ -27,22 +27,28 @@ Installable through [HACS](https://hacs.xyz/) as a **custom repository** (catego
 
 ## Entities
 
-One device per config entry. Example entities:
+One device per config entry. Seven sensors:
 
-| Entity | State | Useful attributes |
-| --- | --- | --- |
-| `sensor.pollen_overall` | `none` / `low` / `high` | `level`, `dominant_species`, `forecast_hourly`, `forecast_daily` |
-| `sensor.pollen_grass` | grains/m³ | `level_label`, `forecast_hourly`, `forecast_daily` |
-| … | … | same for alder, birch, mugwort, olive, ragweed |
+| Entity | Name | State | Attributes |
+| --- | --- | --- | --- |
+| `sensor.pollen_overall` | Overall | `none` / `low` / `high` | `provider`, `species`, `unit`, `level`, `level_label`, `dominant_species`, `forecast_hourly`, `forecast_daily`, `attribution` |
+| `sensor.pollen_alder` | Alder | grains/m³ | `provider`, `species`, `unit`, `level`, `level_label`, `forecast_hourly`, `forecast_daily`, `attribution` |
+| `sensor.pollen_birch` | Birch | grains/m³ | same as alder |
+| `sensor.pollen_grass` | Grass | grains/m³ | same as alder |
+| `sensor.pollen_mugwort` | Mugwort | grains/m³ | same as alder |
+| `sensor.pollen_olive` | Olive | grains/m³ | same as alder |
+| `sensor.pollen_ragweed` | Ragweed | grains/m³ | same as alder |
 
 Attribute contract (provider-neutral for a future US source):
 
 - `provider` — `open_meteo`
-- `species` — canonical key or `overall`
-- `unit` — `grains_m3` or `level`
-- `level` / `level_label` — `0|1|2` and `none|low|high`
-- `forecast_hourly` — `[{ "t": "<iso>", "value": number|null }, …]` full horizon
-- `forecast_daily` — `[{ "date": "YYYY-MM-DD", "value": number }, …]`
+- `species` — `overall` \| `alder` \| `birch` \| `grass` \| `mugwort` \| `olive` \| `ragweed`
+- `unit` — `level` (overall) or `grains_m3` (species)
+- `level` / `level_label` — `0\|1\|2` and `none\|low\|high`
+- `dominant_species` — overall only; highest active species key, or `null` when none
+- `forecast_hourly` — `[{ "t": "<iso>", "value": number\|null }, …]` full horizon (~4 days)
+- `forecast_daily` — `[{ "date": "YYYY-MM-DD", "value": number }, …]` daily peaks
+- `attribution` — Open-Meteo / CAMS credit string
 
 ## Works with Veðurkort
 
