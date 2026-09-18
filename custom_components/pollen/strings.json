@@ -1,0 +1,33 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Pollen",
+        "description": "Pollen forecasts from Open-Meteo (CAMS Europe). Choose a location inside Europe.",
+        "data": {
+          "name": "Name",
+          "latitude": "Latitude",
+          "longitude": "Longitude"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Could not reach Open-Meteo. Check your internet connection and try again.",
+      "out_of_coverage": "No pollen data for this location. Open-Meteo pollen covers Europe only (CAMS)."
+    },
+    "abort": {
+      "already_configured": "This location is already configured."
+    }
+  },
+  "entity": {
+    "sensor": {
+      "overall": { "name": "Overall" },
+      "alder": { "name": "Alder" },
+      "birch": { "name": "Birch" },
+      "grass": { "name": "Grass" },
+      "mugwort": { "name": "Mugwort" },
+      "olive": { "name": "Olive" },
+      "ragweed": { "name": "Ragweed" }
+    }
+  }
+}
