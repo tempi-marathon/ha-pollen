@@ -11,7 +11,7 @@ v1 uses the [Open-Meteo Air Quality API](https://open-meteo.com/en/docs/air-qual
 ## Features
 
 - Six species sensors: alder, birch, grass, mugwort, olive, ragweed (grains/m³)
-- One **Overall** sensor: `none` / `low` / `high` plus dominant species
+- One **Overall** sensor: `none` / `low` / `medium` / `high` plus dominant species
 - Full hourly forecast (~4 days) and daily peaks on every sensor as attributes
 - Config flow with location (defaults to Home Assistant home)
 - Refuses setup outside CAMS coverage (all pollen fields `null`)
@@ -31,7 +31,7 @@ One device per config entry. Seven sensors:
 
 | Entity | Name | State | Attributes |
 | --- | --- | --- | --- |
-| `sensor.pollen_overall` | Overall | `none` / `low` / `high` | `provider`, `species`, `unit`, `level`, `level_label`, `dominant_species`, `forecast_hourly`, `forecast_daily`, `attribution` |
+| `sensor.pollen_overall` | Overall | `none` / `low` / `medium` / `high` | `provider`, `species`, `unit`, `level`, `level_label`, `dominant_species`, `forecast_hourly`, `forecast_daily`, `attribution` |
 | `sensor.pollen_alder` | Alder | grains/m³ | `provider`, `species`, `unit`, `level`, `level_label`, `forecast_hourly`, `forecast_daily`, `attribution` |
 | `sensor.pollen_birch` | Birch | grains/m³ | same as alder |
 | `sensor.pollen_grass` | Grass | grains/m³ | same as alder |
@@ -44,7 +44,7 @@ Attribute contract (provider-neutral for a future US source):
 - `provider` — `open_meteo`
 - `species` — `overall` \| `alder` \| `birch` \| `grass` \| `mugwort` \| `olive` \| `ragweed`
 - `unit` — `level` (overall) or `grains_m3` (species)
-- `level` / `level_label` — `0\|1\|2` and `none\|low\|high`
+- `level` / `level_label` — `0\|1\|2\|3` and `none\|low\|medium\|high` (midpoint between onset and peak → medium)
 - `dominant_species` — overall only; highest active species key, or `null` when none
 - `forecast_hourly` — `[{ "t": "<iso>", "value": number\|null }, …]` full horizon (~4 days)
 - `forecast_daily` — `[{ "date": "YYYY-MM-DD", "value": number }, …]` daily peaks

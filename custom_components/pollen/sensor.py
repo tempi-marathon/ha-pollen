@@ -136,7 +136,7 @@ class PollenSpeciesSensor(PollenBaseSensor):
 
 
 class PollenOverallSensor(PollenBaseSensor):
-    """Overall pollen level (none / low / high) for the location."""
+    """Overall pollen level (none / low / medium / high) for the location."""
 
     _attr_device_class = SensorDeviceClass.ENUM
     _attr_options = list(LEVEL_LABELS.values())
