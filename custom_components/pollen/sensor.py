@@ -28,7 +28,6 @@ from .const import (
     CONF_NAME,
     DOMAIN,
     OVERALL_SPECIES,
-    SPECIES_NAMES,
     UNIT_OF_MEASUREMENT_GRAINS,
 )
 from .coordinator import PollenCoordinator
@@ -103,8 +102,6 @@ class PollenSpeciesSensor(PollenBaseSensor):
         self._species = species
         self._attr_unique_id = f"{entry.entry_id}_{species}"
         self._attr_translation_key = species
-        self._attr_name = SPECIES_NAMES.get(species, species.title())
-        self.entity_id = f"sensor.{DOMAIN}_{species}"
 
     def _reading(self) -> SpeciesReading | None:
         return self.coordinator.data.readings.get(self._species)
@@ -142,10 +139,6 @@ class PollenOverallSensor(PollenBaseSensor):
     _attr_options = list(LEVEL_LABELS.values())
     _attr_entity_registry_enabled_default = True
 
-    _attr_device_class = SensorDeviceClass.ENUM
-    _attr_options = list(LEVEL_LABELS.values())
-    _attr_entity_registry_enabled_default = True
-
     def __init__(
         self,
         coordinator: PollenCoordinator,
@@ -154,8 +147,6 @@ class PollenOverallSensor(PollenBaseSensor):
         super().__init__(coordinator, entry)
         self._attr_unique_id = f"{entry.entry_id}_{OVERALL_SPECIES}"
         self._attr_translation_key = OVERALL_SPECIES
-        self._attr_name = "Overall"
-        self.entity_id = f"sensor.{DOMAIN}_{OVERALL_SPECIES}"
 
     @property
     def native_value(self) -> str | None:

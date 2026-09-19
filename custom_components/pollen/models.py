@@ -50,7 +50,13 @@ class PollenSnapshot:
     attribution: str = ""
 
     def overall_hourly(self) -> tuple[ForecastPoint, ...]:
-        """Per-hour max across species (for the overall sensor chart)."""
+        """Per-hour max grains/m³ across species (not max severity).
+
+        Overall *state* uses severity levels (species thresholds differ).
+        Overall *forecast values* stay as max raw grains so consumers such as
+        Veðurkort can chart a numeric series under the existing attribute
+        contract.
+        """
         if not self.readings:
             return ()
         first = next(iter(self.readings.values()))
@@ -60,14 +66,13 @@ class PollenSnapshot:
             values = [
                 r.forecast_hourly[i].value
                 for r in self.readings.values()
-                if i < len(r.forecast_hourly)
-                and r.forecast_hourly[i].value is not None
+                if i < len(r.forecast_hourly) and r.forecast_hourly[i].value is not None
             ]
             out.append(ForecastPoint(t=t, value=max(values) if values else None))
         return tuple(out)
 
     def overall_daily(self) -> tuple[DailyPeak, ...]:
-        """Per-day max across species."""
+        """Per-day max grains/m³ across species (same contract as overall_hourly)."""
         by_date: dict[str, list[float]] = {}
         for reading in self.readings.values():
             for peak in reading.forecast_daily:

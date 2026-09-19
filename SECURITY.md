@@ -19,12 +19,17 @@ I’ll look into reports as soon as I can and follow up when there’s a fix or 
 
 ## Scope
 
-This is a Home Assistant integration via HACS. Please report security issues in **this** repository’s code or its direct dependencies. Problems in Home Assistant, HACS, other integrations, or Open Food Facts belong upstream unless this integration mishandles their data.
+This is a Home Assistant custom integration distributed via HACS. Please report security issues in **this** repository’s code. Problems in Home Assistant, HACS, or Open-Meteo belong upstream unless this integration mishandles their data.
 
-In-scope examples: inventory storage, websocket/actions, the sidebar panel bundle, and how this integration talks to Home Assistant.
+In-scope examples:
+
+- How the config flow and coordinator call the Open-Meteo Air Quality API
+- Parsing of untrusted JSON into sensor state and attributes
+- Secrets handling (this integration requires no API key today)
+- Supply-chain issues in this repo’s GitHub Actions workflows
+
+Out of scope: Home Assistant core, HACS itself, and Open-Meteo / CAMS data quality.
 
 ## Distribution integrity
 
-HACS installs the integration from this repository. Home Assistant serves that file as the sidebar panel.
-
-Treat that file as part of the trusted release surface: tag releases from verified CI builds, and verify the committed `dist/` artifact matches a local `npm run build` before publishing.
+HACS installs the integration source from this repository (no separate frontend bundle). Tag releases from a clean `main` after CI (hassfest, HACS validate, pytest) has passed, and prefer SHA-pinned GitHub Actions.

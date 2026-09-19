@@ -50,10 +50,3 @@ ATTR_DOMINANT_SPECIES: Final = "dominant_species"
 OVERALL_SPECIES: Final = "overall"
 
 OPEN_METEO_URL: Final = "https://air-quality-api.open-meteo.com/v1/air-quality"
-
-# CAMS European domain (approx.). Used as a soft hint; null pollen is the
-# hard coverage signal from Open-Meteo.
-CAMS_WEST: Final = -25.0
-CAMS_EAST: Final = 45.0
-CAMS_SOUTH: Final = 30.0
-CAMS_NORTH: Final = 72.0
