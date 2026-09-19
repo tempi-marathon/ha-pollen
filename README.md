@@ -27,9 +27,9 @@ Installable through [HACS](https://hacs.xyz/) as a **custom repository** (catego
 
 ## Entities
 
-One device per config entry. Seven sensors:
+One device per config entry. Seven sensors. Entity IDs are derived by Home Assistant from the device and entity names (not hardcoded), so a second location gets distinct IDs. Typical first-install IDs when the device is named "Pollen":
 
-| Entity | Name | State | Attributes |
+| Entity (typical) | Name | State | Attributes |
 | --- | --- | --- | --- |
 | `sensor.pollen_overall` | Overall | `none` / `low` / `medium` / `high` | `provider`, `species`, `unit`, `level`, `level_label`, `dominant_species`, `forecast_hourly`, `forecast_daily`, `attribution` |
 | `sensor.pollen_alder` | Alder | grains/m³ | `provider`, `species`, `unit`, `level`, `level_label`, `forecast_hourly`, `forecast_daily`, `attribution` |
@@ -46,8 +46,8 @@ Attribute contract (provider-neutral for a future US source):
 - `unit` — `level` (overall) or `grains_m3` (species)
 - `level` / `level_label` — `0\|1\|2\|3` and `none\|low\|medium\|high` (midpoint between onset and peak → medium)
 - `dominant_species` — overall only; highest active species key, or `null` when none
-- `forecast_hourly` — `[{ "t": "<iso>", "value": number\|null }, …]` full horizon (~4 days)
-- `forecast_daily` — `[{ "date": "YYYY-MM-DD", "value": number }, …]` daily peaks
+- `forecast_hourly` — `[{ "t": "<iso>", "value": number\|null }, …]` full horizon (~4 days). Overall forecast values are **max grains/m³ across species**, not max severity (species thresholds differ).
+- `forecast_daily` — `[{ "date": "YYYY-MM-DD", "value": number }, …]` daily peaks (overall: max grains across species, same as hourly)
 - `attribution` — Open-Meteo / CAMS credit string
 
 ## Works with Veðurkort

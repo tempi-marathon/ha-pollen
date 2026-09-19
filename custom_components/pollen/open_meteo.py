@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import math
 from typing import TYPE_CHECKING, Any
 
 from .const import (
@@ -28,9 +29,28 @@ class OutOfCoverageError(Exception):
     """Raised when the location has no CAMS pollen data."""
 
 
-def daily_peaks(
-    times: list[str], values: list[float | None]
-) -> list[DailyPeak]:
+def _as_finite_float(value: Any) -> float | None:
+    """Return a finite float, or None for missing / non-numeric / non-finite values.
+
+    Rejects bool (which is a subclass of int) and NaN/Inf so they never become
+    sensor state.
+    """
+    if value is None or isinstance(value, bool):
+        return None
+    if isinstance(value, (int, float)):
+        number = float(value)
+        if math.isfinite(number):
+            return number
+    return None
+
+
+def _as_coord(value: Any, fallback: float) -> float:
+    """Coerce API lat/lon to float, falling back to the requested coordinate."""
+    number = _as_finite_float(value)
+    return number if number is not None else float(fallback)
+
+
+def daily_peaks(times: list[str], values: list[float | None]) -> list[DailyPeak]:
     """Collapse an hourly series into per-calendar-day maxima."""
     by_date: dict[str, list[float]] = {}
     for t, value in zip(times, values, strict=False):
@@ -39,8 +59,7 @@ def daily_peaks(
         date = t[:10]
         by_date.setdefault(date, []).append(value)
     return [
-        DailyPeak(date=date, value=max(vals))
-        for date, vals in sorted(by_date.items())
+        DailyPeak(date=date, value=max(vals)) for date, vals in sorted(by_date.items())
     ]
 
 
@@ -51,8 +70,17 @@ def parse_response(
     requested_lon: float,
 ) -> PollenSnapshot:
     """Parse an Open-Meteo air-quality JSON payload into a snapshot."""
-    current = data.get("current") or {}
-    hourly = data.get("hourly") or {}
+    current_raw = data.get("current")
+    hourly_raw = data.get("hourly")
+    if current_raw is None:
+        current_raw = {}
+    if hourly_raw is None:
+        hourly_raw = {}
+    if not isinstance(current_raw, dict) or not isinstance(hourly_raw, dict):
+        raise OpenMeteoError("Unexpected Open-Meteo response shape")
+
+    current: dict[str, Any] = current_raw
+    hourly: dict[str, Any] = hourly_raw
     times: list[str] = list(hourly.get("time") or [])
 
     any_value = False
@@ -60,30 +88,27 @@ def parse_response(
 
     for api_key in API_KEYS:
         species = API_TO_SPECIES[api_key]
-        cur = current.get(api_key)
+        cur = _as_finite_float(current.get(api_key))
         if cur is not None:
             any_value = True
-        series = list(hourly.get(api_key) or [])
+        series_raw = list(hourly.get(api_key) or [])
         # Pad / trim to times length
-        if len(series) < len(times):
-            series = series + [None] * (len(times) - len(series))
-        elif len(series) > len(times):
-            series = series[: len(times)]
+        if len(series_raw) < len(times):
+            series_raw = series_raw + [None] * (len(times) - len(series_raw))
+        elif len(series_raw) > len(times):
+            series_raw = series_raw[: len(times)]
 
+        series: list[float | None] = [_as_finite_float(v) for v in series_raw]
         if any(v is not None for v in series):
             any_value = True
 
-        lvl = level_for_grains(species, cur if isinstance(cur, (int, float)) else None)
+        lvl = level_for_grains(species, cur)
         hourly_points = tuple(
-            ForecastPoint(
-                t=t,
-                value=float(v) if isinstance(v, (int, float)) else None,
-            )
-            for t, v in zip(times, series, strict=False)
+            ForecastPoint(t=t, value=v) for t, v in zip(times, series, strict=False)
         )
         readings[species] = SpeciesReading(
             species=species,
-            current=float(cur) if isinstance(cur, (int, float)) else None,
+            current=cur,
             unit=UNIT_GRAINS,
             level=lvl,
             level_label=level_label(lvl),
@@ -109,22 +134,26 @@ def parse_response(
             reading.level == overall_level
             and reading.level > LEVEL_NONE
             and reading.current is not None
+            and dominant is not None
         ):
-            assert dominant is not None
             prev = readings[dominant]
             if prev.current is None or reading.current > prev.current:
                 dominant = species
             elif reading.current == prev.current and species < dominant:
+                # Same grains: alphabetical species key wins.
                 dominant = species
 
     if overall_level == LEVEL_NONE:
         dominant = None
 
+    generated = current.get("time")
+    generated_at = generated if isinstance(generated, str) else None
+
     return PollenSnapshot(
         provider=PROVIDER_OPEN_METEO,
-        latitude=float(data.get("latitude", requested_lat)),
-        longitude=float(data.get("longitude", requested_lon)),
-        generated_at=current.get("time"),
+        latitude=_as_coord(data.get("latitude"), requested_lat),
+        longitude=_as_coord(data.get("longitude"), requested_lon),
+        generated_at=generated_at,
         readings=readings,
         overall_level=overall_level,
         overall_level_label=level_label(overall_level),
@@ -140,7 +169,7 @@ async def fetch_pollen(
     longitude: float,
 ) -> PollenSnapshot:
     """Fetch and parse pollen from Open-Meteo."""
-    from aiohttp import ClientError
+    from aiohttp import ClientError, ClientTimeout
 
     params = {
         "latitude": latitude,
@@ -151,7 +180,11 @@ async def fetch_pollen(
         "timezone": "auto",
     }
     try:
-        async with session.get(OPEN_METEO_URL, params=params, timeout=30) as resp:
+        async with session.get(
+            OPEN_METEO_URL,
+            params=params,
+            timeout=ClientTimeout(total=30),
+        ) as resp:
             if resp.status != 200:
                 text = await resp.text()
                 raise OpenMeteoError(f"HTTP {resp.status}: {text[:200]}")

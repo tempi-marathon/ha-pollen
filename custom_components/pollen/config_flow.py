@@ -57,6 +57,4 @@ class PollenConfigFlow(ConfigFlow, domain=DOMAIN):
                 vol.Required(CONF_LONGITUDE, default=hass_lon): cv.longitude,
             }
         )
-        return self.async_show_form(
-            step_id="user", data_schema=schema, errors=errors
-        )
+        return self.async_show_form(step_id="user", data_schema=schema, errors=errors)
