@@ -20,7 +20,7 @@ jobs:
       - uses: actions/checkout@v7
       # Pin to a SHA instead of @master (HA actions repo has no version tags for hassfest).
       # Update by re-pinning after reviewing https://github.com/home-assistant/actions/commits/master
-      - uses: home-assistant/actions/hassfest@58bff37c8947f690ace498be413a9b78d6f30f93 # master
+      - uses: home-assistant/actions/hassfest@06749dd8c0b54f350bc69c8752456cee498808a3 # master
 
   pytest:
     runs-on: ubuntu-latest
