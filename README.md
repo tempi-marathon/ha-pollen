@@ -18,12 +18,11 @@ v1 uses the [Open-Meteo Air Quality API](https://open-meteo.com/en/docs/air-qual
 
 ## Install (HACS)
 
-Installable through [HACS](https://hacs.xyz/) as a **custom repository** (category: **Integration**).
+[![Open Pollen on Home Assistant Community Store (HACS).](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=tempi-marathon&repository=ha-pollen&category=integration)
 
-1. HACS → Integrations → ⋮ → **Custom repositories**
-2. Add `https://github.com/tempi-marathon/ha-pollen` (category: Integration)
-3. Download **Pollen**, restart Home Assistant
-4. Settings → Devices & services → **Add Integration** → **Pollen**
+1. Open HACS → search for **Pollen**, or use the button above (custom repository if needed)
+2. Download **Pollen**, restart Home Assistant
+3. Settings → Devices & services → **Add Integration** → **Pollen**
 
 ## Entities
 
