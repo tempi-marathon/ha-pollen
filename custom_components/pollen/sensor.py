@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from datetime import datetime
 from typing import Any
 
 from homeassistant.components.sensor import (
@@ -11,28 +12,34 @@ from homeassistant.components.sensor import (
 )
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
-from homeassistant.helpers.device_registry import DeviceEntryType, DeviceInfo
+from homeassistant.helpers.entity import EntityCategory
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
-from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 from .const import (
     ATTR_DOMINANT_SPECIES,
     ATTR_FORECAST_DAILY,
     ATTR_FORECAST_HOURLY,
+    ATTR_IN_COVERAGE,
+    ATTR_LATITUDE,
     ATTR_LEVEL,
     ATTR_LEVEL_LABEL,
+    ATTR_LONGITUDE,
     ATTR_PROVIDER,
     ATTR_SPECIES,
     ATTR_UNIT,
     ATTRIBUTION,
-    CONF_NAME,
+    DATA_TIME,
     DOMAIN,
+    LAST_ERROR,
+    LAST_FETCH,
     OVERALL_SPECIES,
     UNIT_OF_MEASUREMENT_GRAINS,
 )
 from .coordinator import PollenCoordinator
+from .entity import PollenEntity
 from .levels import LEVEL_LABELS
 from .models import DailyPeak, ForecastPoint, SpeciesReading
+from .times import parse_generated_at
 
 PARALLEL_UPDATES = 0
 
@@ -44,21 +51,15 @@ async def async_setup_entry(
 ) -> None:
     """Set up Pollen sensors from a config entry."""
     coordinator: PollenCoordinator = hass.data[DOMAIN][entry.entry_id]
-    entities: list[SensorEntity] = [PollenOverallSensor(coordinator, entry)]
+    entities: list[SensorEntity] = [
+        PollenOverallSensor(coordinator, entry),
+        PollenLastFetchSensor(coordinator, entry),
+        PollenDataTimeSensor(coordinator, entry),
+        PollenLastErrorSensor(coordinator, entry),
+    ]
     for species in coordinator.data.readings:
         entities.append(PollenSpeciesSensor(coordinator, entry, species))
     async_add_entities(entities)
-
-
-def _device_info(entry: ConfigEntry) -> DeviceInfo:
-    return DeviceInfo(
-        identifiers={(DOMAIN, entry.entry_id)},
-        name=entry.data.get(CONF_NAME) or entry.title or "Pollen",
-        manufacturer="Open-Meteo",
-        model="Pollen",
-        entry_type=DeviceEntryType.SERVICE,
-        configuration_url="https://open-meteo.com/en/docs/air-quality-api",
-    )
 
 
 def _hourly_attr(points: tuple[ForecastPoint, ...]) -> list[dict[str, Any]]:
@@ -69,21 +70,10 @@ def _daily_attr(peaks: tuple[DailyPeak, ...]) -> list[dict[str, Any]]:
     return [{"date": p.date, "value": p.value} for p in peaks]
 
 
-class PollenBaseSensor(CoordinatorEntity[PollenCoordinator], SensorEntity):
+class PollenBaseSensor(PollenEntity, SensorEntity):
     """Shared base for pollen sensors."""
 
-    _attr_has_entity_name = True
-    _attr_attribution = ATTRIBUTION
     _attr_icon = "mdi:flower-pollen"
-
-    def __init__(
-        self,
-        coordinator: PollenCoordinator,
-        entry: ConfigEntry,
-    ) -> None:
-        super().__init__(coordinator)
-        self._entry = entry
-        self._attr_device_info = _device_info(entry)
 
 
 class PollenSpeciesSensor(PollenBaseSensor):
@@ -166,3 +156,98 @@ class PollenOverallSensor(PollenBaseSensor):
             ATTR_FORECAST_DAILY: _daily_attr(data.overall_daily()),
             "attribution": ATTRIBUTION,
         }
+
+
+class PollenLastFetchSensor(PollenBaseSensor):
+    """When the integration last successfully fetched from the provider."""
+
+    _attr_device_class = SensorDeviceClass.TIMESTAMP
+    _attr_entity_category = EntityCategory.DIAGNOSTIC
+    _attr_entity_registry_enabled_default = False
+    _attr_icon = "mdi:clock-check"
+
+    def __init__(
+        self,
+        coordinator: PollenCoordinator,
+        entry: ConfigEntry,
+    ) -> None:
+        super().__init__(coordinator, entry)
+        self._attr_unique_id = f"{entry.entry_id}_{LAST_FETCH}"
+        self._attr_translation_key = LAST_FETCH
+
+    @property
+    def available(self) -> bool:
+        # Keep last success time visible during a failed poll.
+        return True
+
+    @property
+    def native_value(self) -> datetime | None:
+        return self.coordinator.last_update_success_time
+
+    @property
+    def extra_state_attributes(self) -> dict[str, Any] | None:
+        data = self.coordinator.data
+        if data is None:
+            return None
+        return {
+            ATTR_PROVIDER: data.provider,
+            ATTR_LATITUDE: data.latitude,
+            ATTR_LONGITUDE: data.longitude,
+            ATTR_IN_COVERAGE: data.in_coverage,
+        }
+
+
+class PollenDataTimeSensor(PollenBaseSensor):
+    """Provider timestamp for the current pollen hour."""
+
+    _attr_device_class = SensorDeviceClass.TIMESTAMP
+    _attr_entity_category = EntityCategory.DIAGNOSTIC
+    _attr_entity_registry_enabled_default = False
+    _attr_icon = "mdi:clock-outline"
+
+    def __init__(
+        self,
+        coordinator: PollenCoordinator,
+        entry: ConfigEntry,
+    ) -> None:
+        super().__init__(coordinator, entry)
+        self._attr_unique_id = f"{entry.entry_id}_{DATA_TIME}"
+        self._attr_translation_key = DATA_TIME
+
+    @property
+    def available(self) -> bool:
+        # Keep provider data time visible during a failed poll.
+        return True
+
+    @property
+    def native_value(self) -> datetime | None:
+        data = self.coordinator.data
+        if data is None:
+            return None
+        return parse_generated_at(data.generated_at)
+
+
+class PollenLastErrorSensor(PollenBaseSensor):
+    """Last failed update error message (persists after recovery)."""
+
+    _attr_entity_category = EntityCategory.DIAGNOSTIC
+    _attr_entity_registry_enabled_default = False
+    _attr_icon = "mdi:alert-circle-outline"
+
+    def __init__(
+        self,
+        coordinator: PollenCoordinator,
+        entry: ConfigEntry,
+    ) -> None:
+        super().__init__(coordinator, entry)
+        self._attr_unique_id = f"{entry.entry_id}_{LAST_ERROR}"
+        self._attr_translation_key = LAST_ERROR
+
+    @property
+    def available(self) -> bool:
+        # Stay available even when the coordinator's last update failed.
+        return True
+
+    @property
+    def native_value(self) -> str | None:
+        return self.coordinator.last_error
