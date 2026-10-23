@@ -22,9 +22,7 @@ def parse_generated_at(
     except ValueError:
         return None
     if parsed.tzinfo is None:
-        parsed = parsed.replace(
-            tzinfo=timezone(timedelta(seconds=utc_offset_seconds))
-        )
+        parsed = parsed.replace(tzinfo=timezone(timedelta(seconds=utc_offset_seconds)))
     return parsed
 
 

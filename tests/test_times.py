@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta, timezone
 
 from custom_components.pollen.times import generated_at_iso, parse_generated_at
 
@@ -14,7 +14,7 @@ def test_parse_naive_applies_utc_offset() -> None:
 
 def test_parse_naive_defaults_to_utc() -> None:
     dt = parse_generated_at("2026-06-19T12:00")
-    assert dt == datetime(2026, 6, 19, 12, 0, tzinfo=timezone.utc)
+    assert dt == datetime(2026, 6, 19, 12, 0, tzinfo=UTC)
 
 
 def test_parse_preserves_existing_offset() -> None:
