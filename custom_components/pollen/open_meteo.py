@@ -16,6 +16,7 @@ from .const import (
 )
 from .levels import LEVEL_NONE, level_for_grains, level_label
 from .models import DailyPeak, ForecastPoint, PollenSnapshot, SpeciesReading
+from .times import generated_at_iso
 
 if TYPE_CHECKING:
     from aiohttp import ClientSession
@@ -147,7 +148,17 @@ def parse_response(
         dominant = None
 
     generated = current.get("time")
-    generated_at = generated if isinstance(generated, str) else None
+    offset_raw = data.get("utc_offset_seconds")
+    offset = (
+        int(offset_raw)
+        if isinstance(offset_raw, (int, float)) and not isinstance(offset_raw, bool)
+        else 0
+    )
+    generated_at = (
+        generated_at_iso(generated, utc_offset_seconds=offset)
+        if isinstance(generated, str)
+        else None
+    )
 
     return PollenSnapshot(
         provider=PROVIDER_OPEN_METEO,

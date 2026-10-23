@@ -27,7 +27,13 @@
       "grass": { "name": "Grass" },
       "mugwort": { "name": "Mugwort" },
       "olive": { "name": "Olive" },
-      "ragweed": { "name": "Ragweed" }
+      "ragweed": { "name": "Ragweed" },
+      "last_fetch": { "name": "Last fetch" },
+      "data_time": { "name": "Data time" },
+      "last_error": { "name": "Last error" }
+    },
+    "button": {
+      "refresh": { "name": "Refresh" }
     }
   }
 }

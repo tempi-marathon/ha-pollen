@@ -209,6 +209,19 @@ def test_parse_rejects_bool_and_nan_as_missing() -> None:
         parse_response(data, requested_lat=52.5, requested_lon=13.4)
 
 
+def test_parse_generated_at_is_timezone_aware() -> None:
+    times = ["2026-06-19T00:00"]
+    zeros = _zero_species()
+    data = _payload(
+        current=zeros,
+        hourly_times=times,
+        hourly={k: [0.0] for k in zeros},
+    )
+    data["utc_offset_seconds"] = 7200
+    snap = parse_response(data, requested_lat=52.5, requested_lon=13.4)
+    assert snap.generated_at == "2026-06-19T12:00:00+02:00"
+
+
 def test_parse_falls_back_to_requested_coords() -> None:
     times = ["2026-06-19T00:00"]
     zeros = _zero_species()

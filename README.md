@@ -13,6 +13,7 @@ v1 uses the [Open-Meteo Air Quality API](https://open-meteo.com/en/docs/air-qual
 - Six species sensors: alder, birch, grass, mugwort, olive, ragweed (grains/m³)
 - One **Overall** sensor: `none` / `low` / `medium` / `high` plus dominant species
 - Full hourly forecast (~4 days) and daily peaks on every sensor as attributes
+- Diagnostic entities (disabled by default): last fetch, provider data time, last error, and a refresh button
 - Config flow with location (defaults to Home Assistant home)
 - Refuses setup outside CAMS coverage (all pollen fields `null`)
 
@@ -30,7 +31,7 @@ From **Home Assistant 2026.11**, install and updates are under **Settings → Ma
 
 ## Entities
 
-One device per config entry. Seven sensors. Entity IDs are derived by Home Assistant from the device and entity names (not hardcoded), so a second location gets distinct IDs. Typical first-install IDs when the device is named "Pollen":
+One device per config entry. Seven primary sensors plus four diagnostic entities (disabled by default). Entity IDs are derived by Home Assistant from the device and entity names (not hardcoded), so a second location gets distinct IDs. Typical first-install IDs when the device is named "Pollen":
 
 | Entity (typical) | Name | State | Attributes |
 | --- | --- | --- | --- |
@@ -41,6 +42,10 @@ One device per config entry. Seven sensors. Entity IDs are derived by Home Assis
 | `sensor.pollen_mugwort` | Mugwort | grains/m³ | same as alder |
 | `sensor.pollen_olive` | Olive | grains/m³ | same as alder |
 | `sensor.pollen_ragweed` | Ragweed | grains/m³ | same as alder |
+| `sensor.pollen_last_fetch` | Last fetch | timestamp (diagnostic) | `provider`, `latitude`, `longitude`, `in_coverage` |
+| `sensor.pollen_data_time` | Data time | timestamp (diagnostic) | — |
+| `sensor.pollen_last_error` | Last error | text (diagnostic) | — |
+| `button.pollen_refresh` | Refresh | press to re-fetch (diagnostic) | — |
 
 Attribute contract (provider-neutral for a future US source):
 

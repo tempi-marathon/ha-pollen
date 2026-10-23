@@ -18,7 +18,7 @@ _LOGGER = logging.getLogger(__name__)
 def _platforms() -> list[Platform]:
     from homeassistant.const import Platform
 
-    return [Platform.SENSOR]
+    return [Platform.SENSOR, Platform.BUTTON]
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
