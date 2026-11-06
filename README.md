@@ -17,17 +17,23 @@ v1 uses the [Open-Meteo Air Quality API](https://open-meteo.com/en/docs/air-qual
 - Config flow with location (defaults to Home Assistant home)
 - Refuses setup outside CAMS coverage (all pollen fields `null`)
 
-## Install (HACS)
+## Install
 
-From **Home Assistant 2026.11**, install and updates are under **Settings → Marketplace** (the HACS button still works after upgrade).
+On **Home Assistant 2026.11 or newer**, install and updates are under **Settings → Marketplace**.
 
-[![Open Pollen on Home Assistant Community Store (HACS).](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=tempi-marathon&repository=ha-pollen&category=integration)
+[![Open Pollen in the Home Assistant Marketplace.](https://my.home-assistant.io/badges/marketplace_repository.svg)](https://my.home-assistant.io/redirect/marketplace_repository/?owner=tempi-marathon&repository=ha-pollen&category=integration)
 
-1. Open HACS → search for **Pollen**, or use the button above (custom repository if needed)
+1. Use the button above, or open **Settings → Marketplace** and search for **Pollen** (add as a custom repository if needed)
 2. Download **Pollen**, restart Home Assistant
 3. Add the integration:
 
 [![Open your Home Assistant instance and start setting up a new integration.](https://my.home-assistant.io/badges/config_flow_start.svg)](https://my.home-assistant.io/redirect/config_flow_start/?domain=pollen)
+
+### Home Assistant 2026.10 and older (HACS)
+
+[![Open Pollen on Home Assistant Community Store (HACS).](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=tempi-marathon&repository=ha-pollen&category=integration)
+
+Open HACS → search for **Pollen** (or use the button above, custom repository if needed), download it, restart Home Assistant, then add the integration as above.
 
 ## Entities
 

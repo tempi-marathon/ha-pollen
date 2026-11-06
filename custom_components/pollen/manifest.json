@@ -1,6 +1,7 @@
 {
   "domain": "pollen",
   "name": "Pollen",
+  "categories": ["weather_alerts.air_quality_pollen"],
   "codeowners": ["@tempi-marathon"],
   "config_flow": true,
   "documentation": "https://github.com/tempi-marathon/ha-pollen",

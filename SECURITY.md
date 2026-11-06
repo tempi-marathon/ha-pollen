@@ -19,7 +19,7 @@ I’ll look into reports as soon as I can and follow up when there’s a fix or 
 
 ## Scope
 
-This is a Home Assistant custom integration distributed via HACS. Please report security issues in **this** repository’s code. Problems in Home Assistant, HACS, or Open-Meteo belong upstream unless this integration mishandles their data.
+This is a Home Assistant custom integration distributed via HACS and the Home Assistant Marketplace. Please report security issues in **this** repository’s code. Problems in Home Assistant, HACS, the Marketplace, or Open-Meteo belong upstream unless this integration mishandles their data.
 
 In-scope examples:
 
@@ -28,8 +28,8 @@ In-scope examples:
 - Secrets handling (this integration requires no API key today)
 - Supply-chain issues in this repo’s GitHub Actions workflows
 
-Out of scope: Home Assistant core, HACS itself, and Open-Meteo / CAMS data quality.
+Out of scope: Home Assistant core, HACS, the Marketplace, and Open-Meteo / CAMS data quality.
 
 ## Distribution integrity
 
-HACS installs the integration source from this repository (no separate frontend bundle). Tag releases from a clean `main` after CI (hassfest, HACS validate, pytest) has passed, and prefer SHA-pinned GitHub Actions.
+HACS and the Marketplace install the integration source from this repository (no separate frontend bundle). Tag releases from a clean `main` after CI (hassfest, HACS validate, pytest) has passed, and prefer SHA-pinned GitHub Actions.
