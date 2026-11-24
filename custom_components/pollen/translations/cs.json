@@ -1,0 +1,61 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Pylová předpověď",
+        "description": "Pylové předpovědi z Open-Meteo (CAMS Europe). Vyberte lokalitu v Evropě.",
+        "data": {
+          "name": "Název",
+          "latitude": "Zeměpisná šířka",
+          "longitude": "Zeměpisná délka"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Nepodařilo se připojit k Open-Meteo. Zkontrolujte připojení k internetu a zkuste to znovu.",
+      "out_of_coverage": "Pro tuto lokalitu nejsou k dispozici pylová data. Pylová předpověď Open-Meteo (CAMS) pokrývá pouze Evropu."
+    },
+    "abort": {
+      "already_configured": "Tato lokalita je již nastavena."
+    }
+  },
+  "entity": {
+    "sensor": {
+      "overall": {
+        "name": "Celkové pylové riziko"
+      },
+      "alder": {
+        "name": "Olše"
+      },
+      "birch": {
+        "name": "Bříza"
+      },
+      "grass": {
+        "name": "Trávy"
+      },
+      "mugwort": {
+        "name": "Pelyněk"
+      },
+      "olive": {
+        "name": "Olivovník"
+      },
+      "ragweed": {
+        "name": "Ambrozie"
+      },
+      "last_fetch": {
+        "name": "Poslední načtení dat"
+      },
+      "data_time": {
+        "name": "Čas dat"
+      },
+      "last_error": {
+        "name": "Poslední chyba"
+      }
+    },
+    "button": {
+      "refresh": {
+        "name": "Aktualizovat"
+      }
+    }
+  }
+}
